@@ -1,10 +1,10 @@
 package Players.STAR5;
-import Interface.PlayerModulePart1;
-import Interface.Coordinate;
-import Interface.PlayerModulePart2;
-import Interface.PlayerMove;
+        import Interface.PlayerModulePart1;
+        import Interface.Coordinate;
+        import Interface.PlayerModulePart2;
+        import Interface.PlayerMove;
 
-import java.util.*;
+        import java.util.*;
 
 
 /**
@@ -35,7 +35,11 @@ public class STAR5 implements PlayerModulePart2{
     /**  A map of all the nodes and its coordinates*/
     private Graph graph;
 
-    private Graph copy;
+    private int dimension;
+
+    private Graph copygraph;
+
+    private ArrayList<Node> copyboard;
     /**
      * Method called to initialize a player module. Required task for part 1.
      * Note that for tournaments of multiple games, only one instance of each PlayerModule is created.
@@ -47,6 +51,7 @@ public class STAR5 implements PlayerModulePart2{
      */
     @Override
     public void initPlayer(int dim, int playerId) {
+        this.dimension = dim * 2;
         if (dim < 3 || dim > 20){
             throw new IllegalArgumentException("The value for DIM is not in the legal range [3,20]");
         }
@@ -58,7 +63,8 @@ public class STAR5 implements PlayerModulePart2{
         finish1 = new ArrayList<>();
         start2 = new ArrayList<>();
         finish2 = new ArrayList<>();
-
+        copyboard = new ArrayList<Node>();
+        copygraph = new Graph();
         //Initialize board to have a size of (2 * dim + 1) x (2 * dim + 1)
         for (int r = 0; r <= dim * 2; r++) {
             for (int c = 0; c <= dim * 2; c++) {
@@ -68,7 +74,6 @@ public class STAR5 implements PlayerModulePart2{
                 board.add(current);
             }
         }
-
         //Place the start and finish nodes for players 1 and 2
         for (Node node : board) {
             int col = node.getCoordinate().getCol();
@@ -99,9 +104,6 @@ public class STAR5 implements PlayerModulePart2{
                     }
                 }
             }
-            for (Coordinate cor : graph.keySet()){
-
-            }
         }
     }
 
@@ -129,10 +131,11 @@ public class STAR5 implements PlayerModulePart2{
                         Node West = graph.get(west);
                         East.assign(1);
                         West.assign(1);
-                        East.addNeighbor(West);
-                        West.addNeighbor(East);
-                        node.addNeighbor(East);
-                        node.addNeighbor(West);
+                        East.addNeighbor(West,1);
+                        West.addNeighbor(East,1);
+                        node.addNeighbor(East,1);
+                        node.addNeighbor(West,1);
+                        node.assign(1);
                         graph.put(east,East);
                         graph.put(west,West);
                     }
@@ -141,10 +144,11 @@ public class STAR5 implements PlayerModulePart2{
                         Node South = graph.get(south);
                         North.assign(1);
                         South.assign(1);
-                        North.addNeighbor(South);
-                        South.addNeighbor(North);
-                        node.addNeighbor(North);
-                        node.addNeighbor(South);
+                        North.addNeighbor(South,1);
+                        South.addNeighbor(North,1);
+                        node.addNeighbor(North,1);
+                        node.addNeighbor(South,1);
+                        node.assign(1);
                         graph.put(north,North);
                         graph.put(south,South);
                     }
@@ -155,10 +159,11 @@ public class STAR5 implements PlayerModulePart2{
                         Node West = graph.get(west);
                         East.assign(2);
                         West.assign(2);
-                        East.addNeighbor(West);
-                        West.addNeighbor(East);
-                        node.addNeighbor(East);
-                        node.addNeighbor(West);
+                        East.addNeighbor(West,1);
+                        West.addNeighbor(East,1);
+                        node.addNeighbor(East,1);
+                        node.addNeighbor(West,1);
+                        node.assign(1);
                         graph.put(east,East);
                         graph.put(west,West);
                     }
@@ -167,10 +172,11 @@ public class STAR5 implements PlayerModulePart2{
                         Node South = graph.get(south);
                         North.assign(2);
                         South.assign(2);
-                        North.addNeighbor(South);
-                        South.addNeighbor(North);
-                        node.addNeighbor(North);
-                        node.addNeighbor(South);
+                        North.addNeighbor(South,1);
+                        South.addNeighbor(North,1);
+                        node.addNeighbor(North,1);
+                        node.addNeighbor(South,1);
+                        node.assign(1);
                         graph.put(north,North);
                         graph.put(south,South);
                     }
@@ -198,7 +204,6 @@ public class STAR5 implements PlayerModulePart2{
         else if (id == 2){
             for (Coordinate start : start2) {
                 for (Coordinate finish : finish2){
-
                     if (graph.canReachBFS(start,finish)){
                         return true;
                     }
@@ -238,20 +243,26 @@ public class STAR5 implements PlayerModulePart2{
      * @return a List of all legal PlayerMove objects. They do not have to be in any particular order.
      */
     @Override
-    //odd row
-    //even column
     public List allLegalMoves() {
         LinkedList<PlayerMove> Legal = new LinkedList<PlayerMove>();
         for (Node node : board){
             //If player ID is 0 then the slot is empty, meaning that it is a legal position for the next move.
-            if (node.getPlayerId() == 1){
-                if (node.getCoordinate().getRow() % 2 ==1)
-                Legal.add(new PlayerMove(node.getCoordinate(),0));//ID will always be 0
+            if (node.getPlayerId() == 0 && node.getCoordinate().getRow() != 0&& node.getCoordinate().getCol() != 0 ){
+                if (node.getCoordinate().getRow() != dimension && node.getCoordinate().getCol() != dimension ){
+                    if (node.getCoordinate().getRow() % 2 != 0 && node.getCoordinate().getCol() % 2 != 0) {
+                        Legal.add(new PlayerMove(node.getCoordinate(), 1));//ID will always be 0
+                    }
+                    if (node.getCoordinate().getRow() % 2 == 0 && node.getCoordinate().getCol() % 2 == 0) {
+                        Legal.add(new PlayerMove(node.getCoordinate(), 1));//ID will always be 0
+                    }
+                }
+            }
+            if (node.getPlayerId() == 2 || node.getPlayerId() == 1){
+                Legal.remove(new PlayerMove(node.getCoordinate(), 0));//ID will always be 0
             }
         }
         return Legal;
     }
-
 
     /**
      * Part 2 task that computes the fewest segments that a given player needs to add to complete a winning path.
@@ -265,26 +276,20 @@ public class STAR5 implements PlayerModulePart2{
     @Override
     public int fewestSegmentsToVictory(int i) {
         int num = 0;
-        ArrayList<Node> nodes = new ArrayList<>();
-//        for (Node node : board){
-//            if (node.getPlayerId() == i){
-//                Node temp = node;
-//                nodes.add(temp);
-//            }
-//        }
-//        for (Node node : nodes){
-//            System.out.println(node);
-//        }
+        int temp = 100;
+//        Graph copy = new Graph(this.graph);
         if (i == 1){
             for (Node node : graph.values()) {
                 if (node.getPlayerId() == 1) {
                     Coordinate start = node.getCoordinate();
                     for (Coordinate finish : finish1) {
                         if (!start.equals(finish)) {
-                            return this.graph.displayShortestPath(start, finish);
+                            num = graph.displayShortestPath(start,finish);
+                            if (num < temp && num != 0) {
+                                temp = num;
+                            }
                         }
                     }
-
                 }
             }
         }
@@ -295,14 +300,15 @@ public class STAR5 implements PlayerModulePart2{
                     Coordinate start = node.getCoordinate();
                     for (Coordinate finish : finish2) {
                         if (!start.equals(finish)) {
-                            return this.graph.displayShortestPath(start, finish);
+                            num = graph.displayShortestPath(start, finish);
+                            if (num < temp && num != 0){
+                                temp = num;
+                            }
                         }
                     }
                 }
             }
         }
-        
-//        graph.displayShortestPath(start1.get(0),finish1.get(0));
-        return 0;
+        return temp;
     }
 }
