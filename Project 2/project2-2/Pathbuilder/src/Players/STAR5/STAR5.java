@@ -238,11 +238,14 @@ public class STAR5 implements PlayerModulePart2{
      * @return a List of all legal PlayerMove objects. They do not have to be in any particular order.
      */
     @Override
+    //odd row
+    //even column
     public List allLegalMoves() {
         LinkedList<PlayerMove> Legal = new LinkedList<PlayerMove>();
         for (Node node : board){
             //If player ID is 0 then the slot is empty, meaning that it is a legal position for the next move.
-            if (node.getPlayerId() == 0){
+            if (node.getPlayerId() == 1){
+                if (node.getCoordinate().getRow() % 2 ==1)
                 Legal.add(new PlayerMove(node.getCoordinate(),0));//ID will always be 0
             }
         }
