@@ -38,6 +38,10 @@ public class STAR5 implements PlayerModulePart2{
     private Graph copygraph;
 
     private ArrayList<Node> copyboard;
+
+    private int maxrow;
+
+    private int maxcol;
     /**
      * Method called to initialize a player module. Required task for part 1.
      * Note that for tournaments of multiple games, only one instance of each PlayerModule is created.
@@ -62,6 +66,8 @@ public class STAR5 implements PlayerModulePart2{
         finish2 = new ArrayList<>();
         copyboard = new ArrayList<Node>();
         copygraph = new Graph();
+        maxrow = dim *2;
+        maxcol = dim * 2;
         //Initialize board to have a size of (2 * dim + 1) x (2 * dim + 1)
         for (int r = 0; r <= dim * 2; r++) {
             for (int c = 0; c <= dim * 2; c++) {
@@ -102,6 +108,87 @@ public class STAR5 implements PlayerModulePart2{
                 }
             }
         }
+        for (int r = 0; r <= dim * 2; r++) {
+            for (int c = 0; c <= dim * 2; c++) {
+                Coordinate coordinate = new Coordinate(r, c);
+                if ((r % 2) != 0 && (c % 2) == 0){
+                    Node current = new Node(coordinate,1);
+                    copyboard.add(current);
+                    copygraph.put(coordinate,current);
+                }
+                else if ((c % 2) != 0 && (r % 2) == 0){
+                    Node current = new Node(coordinate,2);
+                    copyboard.add(current);
+                    copygraph.put(coordinate,current);
+                }
+                else{
+                    Node current = new Node(coordinate,0);
+                    copyboard.add(current);
+                    copygraph.put(coordinate,current);
+                }
+
+            }
+        }
+        for (Node node : copyboard) {
+            int r = node.getCoordinate().getRow();
+            int c = node.getCoordinate().getCol();
+            Coordinate north = new Coordinate(r-1,c);
+            Coordinate south = new Coordinate(r+1,c);
+            Coordinate east = new Coordinate(r,c+1);
+            Coordinate west = new Coordinate(r,c-1);
+            if (node.getPlayerId() == 1){
+                if (copygraph.containsKey(north)){
+                    if (copygraph.get(north).getPlayerId() == 1){
+                        node.addNeighbor(copygraph.get(north));
+                        copygraph.get(north).addNeighbor(node);
+                    }
+                }
+                if (copygraph.containsKey(east)){
+                    if (copygraph.get(east).getPlayerId() == 1) {
+                        node.addNeighbor(copygraph.get(east));
+                        copygraph.get(east).addNeighbor(node);
+                    }
+                }
+                if (copygraph.containsKey(south)){
+                    if (copygraph.get(south).getPlayerId() == 1) {
+                        node.addNeighbor(copygraph.get(south));
+                        copygraph.get(south).addNeighbor(node);
+                    }
+                }
+                if (copygraph.containsKey(west)){
+                    if (copygraph.get(west).getPlayerId() == 1) {
+                        node.addNeighbor(copygraph.get(west));
+                        copygraph.get(west).addNeighbor(node);
+                    }
+                }
+            }
+            else if (node.getPlayerId() == 2){
+                if (copygraph.containsKey(north)){
+                    if (copygraph.get(north).getPlayerId() == 2){
+                        node.addNeighbor(copygraph.get(north));
+                        copygraph.get(north).addNeighbor(node);
+                    }
+                }
+                if (copygraph.containsKey(east)){
+                    if (copygraph.get(east).getPlayerId() == 2) {
+                        node.addNeighbor(copygraph.get(east));
+                        copygraph.get(east).addNeighbor(node);
+                    }
+                }
+                if (copygraph.containsKey(south)){
+                    if (copygraph.get(south).getPlayerId() == 2) {
+                        node.addNeighbor(copygraph.get(south));
+                        copygraph.get(south).addNeighbor(node);
+                    }
+                }
+                if (copygraph.containsKey(west)){
+                    if (copygraph.get(west).getPlayerId() == 2) {
+                        node.addNeighbor(copygraph.get(west));
+                        copygraph.get(west).addNeighbor(node);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -130,6 +217,8 @@ public class STAR5 implements PlayerModulePart2{
                         West.assign(1);
                         East.addNeighbor(West,1);
                         West.addNeighbor(East,1);
+                        East.addNeighbor(node,1);
+                        West.addNeighbor(node,1);
                         node.addNeighbor(East,1);
                         node.addNeighbor(West,1);
                         node.assign(1);
@@ -143,6 +232,8 @@ public class STAR5 implements PlayerModulePart2{
                         South.assign(1);
                         North.addNeighbor(South,1);
                         South.addNeighbor(North,1);
+                        North.addNeighbor(node,1);
+                        South.addNeighbor(node,1);
                         node.addNeighbor(North,1);
                         node.addNeighbor(South,1);
                         node.assign(1);
@@ -158,9 +249,11 @@ public class STAR5 implements PlayerModulePart2{
                         West.assign(2);
                         East.addNeighbor(West,1);
                         West.addNeighbor(East,1);
+                        East.addNeighbor(node,1);
+                        West.addNeighbor(node,1);
                         node.addNeighbor(East,1);
                         node.addNeighbor(West,1);
-                        node.assign(1);
+                        node.assign(2);
                         graph.put(east,East);
                         graph.put(west,West);
                     }
@@ -171,11 +264,81 @@ public class STAR5 implements PlayerModulePart2{
                         South.assign(2);
                         North.addNeighbor(South,1);
                         South.addNeighbor(North,1);
+                        North.addNeighbor(node,1);
+                        South.addNeighbor(node,1);
+                        node.addNeighbor(North,1);
+                        node.addNeighbor(South,1);
+                        node.assign(2);
+                        graph.put(north,North);
+                        graph.put(south,South);
+                    }
+                }
+            }
+        }
+        for (Node node : copyboard){
+            if (node.getCoordinate().equals(m.getCoordinate())){
+                if (m.getPlayerId() == 1){
+                    if ((c % 2) == 1){
+                        Node East = copygraph.get(east);
+                        Node West = copygraph.get(west);
+                        East.assign(1);
+                        West.assign(1);
+                        East.addNeighbor(West,1);
+                        West.addNeighbor(East,1);
+                        East.addNeighbor(node,1);
+                        West.addNeighbor(node,1);
+                        node.assign(1);
+                        node.addNeighbor(East,1);
+                        node.addNeighbor(West,1);
+                        copygraph.put(east,East);
+                        copygraph.put(west,West);
+                    }
+                    else if ((c % 2) == 0){
+                        Node North = copygraph.get(north);
+                        Node South = copygraph.get(south);
+                        North.assign(1);
+                        South.assign(1);
+                        North.addNeighbor(South,1);
+                        South.addNeighbor(North,1);
+                        North.addNeighbor(node,1);
+                        South.addNeighbor(node,1);
                         node.addNeighbor(North,1);
                         node.addNeighbor(South,1);
                         node.assign(1);
-                        graph.put(north,North);
-                        graph.put(south,South);
+                        copygraph.put(north,North);
+                        copygraph.put(south,South);
+                    }
+                }
+                else if (m.getPlayerId() == 2){
+                    if ((c % 2) == 0){
+                        Node East = copygraph.get(east);
+                        Node West = copygraph.get(west);
+                        East.assign(2);
+                        West.assign(2);
+                        East.addNeighbor(West,1);
+                        West.addNeighbor(East,1);
+                        East.addNeighbor(node,1);
+                        West.addNeighbor(node,1);
+                        node.addNeighbor(East,1);
+                        node.addNeighbor(West,1);
+                        node.assign(2);
+                        copygraph.put(east,East);
+                        copygraph.put(west,West);
+                    }
+                    else if ((c % 2) == 1){
+                        Node North = copygraph.get(north);
+                        Node South = copygraph.get(south);
+                        North.assign(2);
+                        South.assign(2);
+                        North.addNeighbor(South,1);
+                        South.addNeighbor(North,1);
+                        North.addNeighbor(node,1);
+                        South.addNeighbor(node,1);
+                        node.assign(2);
+                        node.addNeighbor(North,1);
+                        node.addNeighbor(South,1);
+                        copygraph.put(north,North);
+                        copygraph.put(south,South);
                     }
                 }
             }
@@ -266,12 +429,21 @@ public class STAR5 implements PlayerModulePart2{
         int temp = 100;
 //        Graph copy = new Graph(this.graph);
         if (i == 1){
-            for (Node node : graph.values()) {
+//            for (Coordinate start: start1){
+//                Coordinate east = new Coordinate(start.getRow(),start.getCol() + 2);
+//                for (Coordinate finish : finish1){
+//                    num = copygraph.displayShortestPath(east,finish);
+//                    if (num < temp && num != 0) {
+//                                temp = num;
+//                            }
+//                }
+//            }
+            for (Node node : copygraph.values()) {
                 if (node.getPlayerId() == 1) {
                     Coordinate start = node.getCoordinate();
                     for (Coordinate finish : finish1) {
                         if (!start.equals(finish)) {
-                            num = graph.displayShortestPath(start,finish);
+                            num = copygraph.displayShortestPath(start,finish);
                             if (num < temp && num != 0) {
                                 temp = num;
                             }
