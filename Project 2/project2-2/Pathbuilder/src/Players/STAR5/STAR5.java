@@ -239,8 +239,16 @@ public class STAR5 implements PlayerModulePart2{
      */
     @Override
     public List allLegalMoves() {
-        return new LinkedList<>();
+        LinkedList<PlayerMove> Legal = new LinkedList<PlayerMove>();
+        for (Node node : board){
+            //If player ID is 0 then the slot is empty, meaning that it is a legal position for the next move.
+            if (node.getPlayerId() == 0){
+                Legal.add(new PlayerMove(node.getCoordinate(),0));//ID will always be 0
+            }
+        }
+        return Legal;
     }
+
 
     /**
      * Part 2 task that computes the fewest segments that a given player needs to add to complete a winning path.
