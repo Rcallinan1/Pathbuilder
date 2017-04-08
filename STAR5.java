@@ -29,6 +29,7 @@ public class STAR5 implements PlayerModulePart2{
     /**A list of coordinates that represent the location of all the finish nodes for player 2  */
     private ArrayList<Coordinate> finish2;
 
+    private int dimension;
     /**id (1 or 2) for the player  */
     private int playerId;
 
@@ -39,9 +40,6 @@ public class STAR5 implements PlayerModulePart2{
 
     private ArrayList<Node> copyboard;
 
-    private int maxrow;
-
-    private int maxcol;
     /**
      * Method called to initialize a player module. Required task for part 1.
      * Note that for tournaments of multiple games, only one instance of each PlayerModule is created.
@@ -66,8 +64,7 @@ public class STAR5 implements PlayerModulePart2{
         finish2 = new ArrayList<>();
         copyboard = new ArrayList<Node>();
         copygraph = new Graph();
-        maxrow = dim *2;
-        maxcol = dim * 2;
+        this.dimension = dim * 2;
         //Initialize board to have a size of (2 * dim + 1) x (2 * dim + 1)
         for (int r = 0; r <= dim * 2; r++) {
             for (int c = 0; c <= dim * 2; c++) {
@@ -132,10 +129,10 @@ public class STAR5 implements PlayerModulePart2{
         for (Node node : copyboard) {
             int r = node.getCoordinate().getRow();
             int c = node.getCoordinate().getCol();
-            Coordinate north = new Coordinate(r-1,c);
-            Coordinate south = new Coordinate(r+1,c);
-            Coordinate east = new Coordinate(r,c+1);
-            Coordinate west = new Coordinate(r,c-1);
+            Coordinate north = new Coordinate(r-2,c);
+            Coordinate south = new Coordinate(r+2,c);
+            Coordinate east = new Coordinate(r,c+2);
+            Coordinate west = new Coordinate(r,c-2);
             if (node.getPlayerId() == 1){
                 if (copygraph.containsKey(north)){
                     if (copygraph.get(north).getPlayerId() == 1){
@@ -285,11 +282,11 @@ public class STAR5 implements PlayerModulePart2{
                         West.assign(1);
                         East.addNeighbor(West,1);
                         West.addNeighbor(East,1);
-                        East.addNeighbor(node,1);
-                        West.addNeighbor(node,1);
-                        node.assign(1);
-                        node.addNeighbor(East,1);
-                        node.addNeighbor(West,1);
+//                        East.addNeighbor(node,1);
+//                        West.addNeighbor(node,1);
+//                        node.assign(1);
+//                        node.addNeighbor(East,1);
+//                        node.addNeighbor(West,1);
                         copygraph.put(east,East);
                         copygraph.put(west,West);
                     }
@@ -300,11 +297,11 @@ public class STAR5 implements PlayerModulePart2{
                         South.assign(1);
                         North.addNeighbor(South,1);
                         South.addNeighbor(North,1);
-                        North.addNeighbor(node,1);
-                        South.addNeighbor(node,1);
-                        node.addNeighbor(North,1);
-                        node.addNeighbor(South,1);
-                        node.assign(1);
+//                        North.addNeighbor(node,1);
+//                        South.addNeighbor(node,1);
+//                        node.addNeighbor(North,1);
+//                        node.addNeighbor(South,1);
+//                        node.assign(1);
                         copygraph.put(north,North);
                         copygraph.put(south,South);
                     }
@@ -383,7 +380,7 @@ public class STAR5 implements PlayerModulePart2{
      */
     @Override
     public PlayerMove move() {
-        return null;
+        return allLegalMoves().get(0);
     }
 
     /**
@@ -403,12 +400,32 @@ public class STAR5 implements PlayerModulePart2{
      * @return a List of all legal PlayerMove objects. They do not have to be in any particular order.
      */
     @Override
-    public List allLegalMoves() {
+    public List<PlayerMove> allLegalMoves() {
         LinkedList<PlayerMove> Legal = new LinkedList<PlayerMove>();
-        for (Node node : board){
+        for (Node node : board) {
             //If player ID is 0 then the slot is empty, meaning that it is a legal position for the next move.
-            if (node.getPlayerId() == 0){
-                    Legal.add(new PlayerMove(node.getCoordinate(), 1));//ID will always be 1
+            if (node.getPlayerId() == 0 && node.getCoordinate().getRow() != 0 && node.getCoordinate().getCol() != 0) {
+                if (node.getCoordinate().getRow() != dimension && node.getCoordinate().getCol() != dimension) {
+                    if (playerId == 1) {
+                        if (node.getCoordinate().getRow() % 2 != 0 && node.getCoordinate().getCol() % 2 != 0) {
+                            Legal.add(new PlayerMove(node.getCoordinate(), 1));//ID will always be 0
+                        }
+                        if (node.getCoordinate().getRow() % 2 == 0 && node.getCoordinate().getCol() % 2 == 0) {
+                            Legal.add(new PlayerMove(node.getCoordinate(), 1));//ID will always be 0
+                        }
+                    }
+                    else if (playerId == 2){
+                        if (node.getCoordinate().getRow() % 2 != 1 && node.getCoordinate().getCol() % 2 != 1) {
+                            Legal.add(new PlayerMove(node.getCoordinate(), 2));//ID will always be 0
+                        }
+                        if (node.getCoordinate().getRow() % 2 == 1 && node.getCoordinate().getCol() % 2 == 1) {
+                            Legal.add(new PlayerMove(node.getCoordinate(), 2));//ID will always be 0
+                        }
+                    }
+                }
+            }
+            if (node.getPlayerId() == 2 || node.getPlayerId() == 1) {
+                Legal.remove(new PlayerMove(node.getCoordinate(), 0));//ID will always be 0
             }
         }
         return Legal;
@@ -429,28 +446,28 @@ public class STAR5 implements PlayerModulePart2{
         int temp = 100;
 //        Graph copy = new Graph(this.graph);
         if (i == 1){
-//            for (Coordinate start: start1){
-//                Coordinate east = new Coordinate(start.getRow(),start.getCol() + 2);
-//                for (Coordinate finish : finish1){
-//                    num = copygraph.displayShortestPath(east,finish);
-//                    if (num < temp && num != 0) {
-//                                temp = num;
-//                            }
-//                }
-//            }
-            for (Node node : copygraph.values()) {
-                if (node.getPlayerId() == 1) {
-                    Coordinate start = node.getCoordinate();
-                    for (Coordinate finish : finish1) {
-                        if (!start.equals(finish)) {
-                            num = copygraph.displayShortestPath(start,finish);
-                            if (num < temp && num != 0) {
-                                temp = num;
-                            }
-                        }
+            for (Coordinate start: start1){
+                Coordinate east = new Coordinate(start.getRow(),start.getCol() + 2);
+                for (Coordinate finish : finish1){
+                    num = copygraph.displayShortestPath(east,finish);
+                    if (num < temp && num != 0) {
+                        temp = num;
                     }
                 }
             }
+//            for (Node node : copygraph.values()) {
+//                if (node.getPlayerId() == 1) {
+//                    Coordinate start = node.getCoordinate();
+//                    for (Coordinate finish : finish1) {
+//                        if (!start.equals(finish)) {
+//                            num = copygraph.displayShortestPath(start,finish);
+//                            if (num < temp && num != 0) {
+//                                temp = num;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
 
         else if (i == 2){
