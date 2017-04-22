@@ -33,6 +33,7 @@ public class Node {
     public Node(Node n){
         this.playerId = n.playerId;
         this.coordinate = new Coordinate(n.getCoordinate().getRow(),n.getCoordinate().getCol());
+        n.neighbors = new LinkedList<>();
         for (Edge e : n.neighbors){
             this.neighbors.add(new Edge(e));
         }
@@ -82,7 +83,10 @@ public class Node {
      */
     public void addNeighbor(Node n, Integer weight) {
         Edge e = new Edge(this, n, weight);
-        neighbors.add(e);
+        neighbors = new LinkedList<>();
+        if (e != null) {
+            neighbors.add(e);
+        }
     }
 
     /**
@@ -130,25 +134,25 @@ public class Node {
      * 
      * @return string associated with the node.
      */
-    @Override
-    public String toString() {
-        String result;
-        if (getPlayerId().equals(0)){
-            result = "Empty, ";
-        }
-        else {
-            result = "Player " + getPlayerId() + ", ";
-        }
-        result += coordinate + ": ";
-
-        for(Edge nbr : neighbors) {
-            result = result + " (" + nbr.getToNode().getCoordinate() + ", "
-                    + nbr.getWeight() + "), ";
-        }
-        // Remove last comma and space, or just spaces
-        // in the case of no neighbors
-        return (result.substring(0, result.length()-2));
-    }
+   // @Override
+   // public String toString() {
+   //     String result;
+   //     if (getPlayerId().equals(0)){
+   //         result = "Empty, ";
+   //     }
+   //     else {
+   //         result = "Player " + getPlayerId() + ", ";
+   //     }
+   //     result += coordinate + ": ";
+//
+   //     for(Edge nbr : neighbors) {
+   //         result = result + " (" + nbr.getToNode().getCoordinate() + ", "
+   //                 + nbr.getWeight() + "), ";
+   //     }
+   //     // Remove last comma and space, or just spaces
+   //     // in the case of no neighbors
+   //     return (result.substring(0, result.length()-2));
+   // }
 
     /**
      *  Two Nodes are equal if they have the same name.

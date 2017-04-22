@@ -3,13 +3,14 @@ package Players.STAR5;
 import Interface.Coordinate;
 import Interface.PlayerMove;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
-
+/**
+ * Created by Noor Mohammad on 4/21/2017.
+ */
 public class PathConfig implements Configuration{
 
     /**
@@ -68,8 +69,8 @@ public class PathConfig implements Configuration{
         this.playerId = whoseTurn;
         this.dimension = dimension;
         this.board = new ArrayList<>(board);
-        this.graph = new Graph(graph);
-        this.board = board;
+//        this.graph = new Graph(graph);
+//        this.board = board;
 //        for (Coordinate coor : graph.keySet()){
 //            Coordinate coordinate = new Coordinate(coor.getRow(),coor.getCol());
 //            Node n = new Node(graph.get(coor));
@@ -80,6 +81,28 @@ public class PathConfig implements Configuration{
         this.Id = Id;
         this.whoseTurn = whoseTurn;
         this.numMoves = numMoves;
+    }
+
+    /**
+      * Takes the old graph and the old board and recreates them
+      * from the
+      * @return
+      */
+     private PathConfig deepcopy(){
+        PathConfig newConfig;
+        Graph newgraph = new Graph();
+        for (Coordinate coordinate : this.graph.keySet()){
+            newgraph.put(coordinate,new Node(this.graph.get(coordinate)));
+        }
+        ArrayList<Node> updated = new ArrayList<Node>();
+        for (Node i:this.board){
+            updated.add(new Node(i));
+        }
+        newConfig = this;
+        newConfig.graph = newgraph;
+        newConfig.board = updated;
+        newConfig.lastMove(this.last);
+        return newConfig;
     }
 
     protected PathConfig(PathConfig other){
@@ -108,7 +131,7 @@ public class PathConfig implements Configuration{
             Node n = new Node(other.graph.get(coor));
             this.graph.put(coordinate,n);
         }
-
+        this.lastMove(this.last);
     }
     /**
      * Get the collection of successors from the current one.
@@ -116,12 +139,10 @@ public class PathConfig implements Configuration{
      * @return All successors, valid and invalid
      */
     public Collection<Configuration> getSuccessors(){
-        PathConfig test = deepcopy();
         LinkedList<Configuration> successors = new LinkedList<>();
         for (PlayerMove move : this.allLegalMoves()){
+            this.last = move;
             PathConfig s = new PathConfig(this);
-            s.lastMove(move);
-            s.last = move;
             successors.add(s);
         }
         return successors;
@@ -154,30 +175,6 @@ public class PathConfig implements Configuration{
         }
         return isValid();
     }
-
-    /**
-     * Takes the old graph and the old board and recreates them
-     * from the
-     * @return
-     */
-    private PathConfig deepcopy(){
-        PathConfig newConfig;
-        Graph newgraph = new Graph(this.graph);
-        ArrayList<Node> updated = new ArrayList<Node>();
-        for (Node i:this.board){
-            updated.add(new Node(i));
-        }
-        newConfig = this;
-        newConfig.graph = newgraph;
-        newConfig.board = updated;
-        return newConfig;
-    }
-    //private void test{
-    //    Collection template = deepcopy();
-    //    template.g
-    //}
-
-
 
     /**
      * Method called after every move of the game. Used to keep internal game state current.
@@ -260,6 +257,82 @@ public class PathConfig implements Configuration{
                 }
             }
         }
+//        for (Node node : copyboard) {
+//            if (node.getCoordinate().equals(m.getCoordinate())) {
+//                if (m.getPlayerId() == 1) {
+//                    if ((c % 2) == 1) {
+//                        Node East = copygraph.get(east);
+//                        Node West = copygraph.get(west);
+//                        East.removeNeighbor(West);
+//                        West.removeNeighbor(East);
+//                        East.addNeighbor(West);
+//                        West.addNeighbor(East);
+//                        East.addNeighbor(node);
+//                        West.addNeighbor(node);
+//                        node.assign(1);
+//                        node.addNeighbor(East);
+//                        node.addNeighbor(West);
+//                        copygraph.put(east, East);
+//                        copygraph.put(west, West);
+//                        copygraph.put(node.getCoordinate(),node);
+//                    } else if ((c % 2) == 0) {
+//                        Node North = copygraph.get(north);
+//                        Node South = copygraph.get(south);
+//                        North.assign(1);
+//                        South.assign(1);
+//                        North.removeNeighbor(South);
+//                        South.removeNeighbor(North);
+//                        North.addNeighbor(South);
+//                        South.addNeighbor(North);
+//                        North.addNeighbor(node);
+//                        South.addNeighbor(node);
+//                        node.addNeighbor(North);
+//                        node.addNeighbor(South);
+//                        node.assign(1);
+//                        copygraph.put(north, North);
+//                        copygraph.put(south, South);
+//                        copygraph.put(node.getCoordinate(),node);
+//                    }
+//                }
+//                else if (m.getPlayerId() == 2) {
+//                    if ((c % 2) == 0) {
+//                        Node East = copygraph.get(east);
+//                        Node West = copygraph.get(west);
+//                        East.assign(2);
+//                        West.assign(2);
+//                        East.removeNeighbor(West);
+//                        West.removeNeighbor(East);
+//                        East.addNeighbor(West);
+//                        West.addNeighbor(East);
+//                        East.addNeighbor(node);
+//                        West.addNeighbor(node);
+//                        node.assign(2);
+//                        node.addNeighbor(East);
+//                        node.addNeighbor(West);
+//                        copygraph.put(east, East);
+//                        copygraph.put(west, West);
+//                        copygraph.put(node.getCoordinate(),node);
+//                    } else if ((c % 2) == 1) {
+//                        Node North = copygraph.get(north);
+//                        Node South = copygraph.get(south);
+//                        North.assign(2);
+//                        South.assign(2);
+//                        North.removeNeighbor(South);
+//                        South.removeNeighbor(North);
+//                        North.addNeighbor(South);
+//                        South.addNeighbor(North);
+//                        North.addNeighbor(node);
+//                        South.addNeighbor(node);
+//                        node.addNeighbor(North);
+//                        node.addNeighbor(South);
+//                        node.assign(2);
+//                        copygraph.put(north, North);
+//                        copygraph.put(south, South);
+//                        copygraph.put(node.getCoordinate(),node);
+//                    }
+//                }
+//            }
+//        }
     }
 
     /**
