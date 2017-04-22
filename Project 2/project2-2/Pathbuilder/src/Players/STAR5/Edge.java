@@ -25,11 +25,12 @@ public class Edge {
         weight = wt;
     }
 
-//    public Edge(Edge e){
-//        this.fromNode = new Node(e.fromNode);
-//        this.toNode = new Node(e.toNode);
-//        this.weight = e.weight;
-//    }
+    public Edge(Edge e){
+        this.fromNode = new Node(e.fromNode);
+        this.toNode = new Node(e.toNode);
+        this.weight = e.weight;
+    }
+
 
     /**
      * Method to access source node of directed edge

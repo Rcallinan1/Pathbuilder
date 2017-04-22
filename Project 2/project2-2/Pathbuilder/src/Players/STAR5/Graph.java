@@ -26,6 +26,13 @@ public class Graph extends HashMap<Coordinate,Node> {
         this.graph = new HashMap<>();
     }
 
+    public Graph(Graph other){
+        this.graph = new HashMap<>();
+        for (Coordinate coordinate : other.keySet()){
+            this.graph.put(coordinate,new Node(other.get(coordinate)));
+        }
+    }
+
     /**
      * Method to generate a string associated with the graph.  The string
      * comprises one line for each node in the graph. Overrides
@@ -178,8 +185,8 @@ public class Graph extends HashMap<Coordinate,Node> {
      *
      * Precondition: the inputs correspond to nodes in the graph.
      *
-     * @param start String name of starting node
-     * @param finish String name of finishing node
+     * @param start Coordinate of starting node
+     * @param finish Coordinate of finishing node
      *
      */
 
@@ -218,11 +225,12 @@ public class Graph extends HashMap<Coordinate,Node> {
 //            }
 //            path.add(0, startNode);
 //
-//            System.out.print("Shortest path: ");
-//            for(Node n1 : path) {
-//                System.out.print(n1.toString() + " ");
-//            }
-//            System.out.println();
+////            System.out.print("Shortest path: ");
+////            for(Node n1 : path) {
+////                System.out.print(n1.toString() + " ");
+////            }
+////            System.out.println("\n" + path.size());
+//            return (path.size());
         }
         return 0;
     }
@@ -245,7 +253,7 @@ public class Graph extends HashMap<Coordinate,Node> {
         for(Coordinate coordinate : this.keySet()) {
             distance.put(this.get(coordinate), Integer.MAX_VALUE);
         }
-        distance.put(startNode,  0);
+        distance.put(startNode, 0);
 
         // initialize predecessors - by not yet including any other nodes,
         // they are unvisited and have no predecessor.  Source node is
@@ -276,10 +284,19 @@ public class Graph extends HashMap<Coordinate,Node> {
                 Integer w = e.getWeight();
                 Node n = e.getToNode();
                 // relaxation
-                Integer distViaU = distance.get(U) + w;
-                if(distance.get(n) > distViaU) {
-                    distance.put(n,  distViaU);
-                    predecessors.put(n,  U);
+                if (n.getPlayerId().equals(startNode.getPlayerId())){
+                    Integer distViaU = distance.get(U) + w;
+                    if(distance.get(n) > distViaU) {
+                        distance.put(n,  distViaU);
+                        predecessors.put(n,  U);
+                    }
+                }
+                if (n.getPlayerId().equals(0)){
+                    Integer distViaU = distance.get(U) + w;
+                    if(distance.get(n) > distViaU + 1) {
+                        distance.put(n,  distViaU);
+                        predecessors.put(n,  U);
+                    }
                 }
             }
         }

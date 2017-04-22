@@ -4,6 +4,7 @@ import Interface.Coordinate;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class representing a node in a graph.
@@ -14,7 +15,7 @@ import java.util.List;
  */
 public class Node {
     /** playerId associated with this node */
-    private Integer playerId;
+    private int playerId;
 
     /** The coordinate associated with this node */
     private Coordinate coordinate;
@@ -29,13 +30,28 @@ public class Node {
 
     }
 //
-//    public Node(Node n){
-//        this.playerId = n.playerId;
-//        this.coordinate = new Coordinate(n.getCoordinate().getRow(),n.getCoordinate().getCol());
-//        for (Edge e : n.neighbors){
-//            this.neighbors.add(new Edge(e));
-//        }
-//    }
+    public Node(Node n){
+        this.playerId = n.playerId;
+        this.coordinate = new Coordinate(n.getCoordinate().getRow(),n.getCoordinate().getCol());
+        for (Edge e : n.neighbors){
+            this.neighbors.add(new Edge(e));
+        }
+    }
+
+    public Node deepCopy(Map<Node, Node> isomorphism) {
+        Node copy = isomorphism.get(this);
+        if (copy == null) {
+            copy = new Node(null);
+            isomorphism.put(this, copy);
+            for (Edge neighbor: neighbors) {
+                //copy.neighbors.add(neighbor.deepCopy(isomorphism));
+            }
+        }
+        return copy;
+    }
+
+
+
     /**
      * Get the Coordinate coordinate associated with this object.
      * @return coordinate.
@@ -71,7 +87,7 @@ public class Node {
     }
 
     /**
-     * Add a neighbor to this node.  Weight of connecting edge is specified.
+     * Add a neighbor to this node. Weight of connecting edge is specified.
      * @param n node to add as neighbor
      * @param weight weight of the edge
      */
@@ -80,6 +96,20 @@ public class Node {
         neighbors.add(e);
     }
 
+    /**
+     * Remove a neighbor from this node.
+     * @param n - node to remove from neighbor
+     */
+    public void removeNeighbor(Node n){
+        int i = 0;
+        for (Edge e : neighbors){
+            if (e.getToNode().equals(n)){
+                neighbors.remove(i);
+                break;
+            }
+            i += 1;
+        }
+    }
     /**
      * Method to return a list for this node containing all
      * of its neighbor nodes.
