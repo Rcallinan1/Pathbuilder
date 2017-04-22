@@ -184,8 +184,8 @@ public class Graph extends HashMap<Coordinate,Node> {
      *
      * Precondition: the inputs correspond to nodes in the graph.
      *
-     * @param start String name of starting node
-     * @param finish String name of finishing node
+     * @param start Coordinate of starting node
+     * @param finish Coordinate of finishing node
      *
      */
 
@@ -213,23 +213,23 @@ public class Graph extends HashMap<Coordinate,Node> {
 //            System.out.println("No path from " + start + " to " + finish);
         }
         else {
-            System.out.println("Minimum distance between " + start + " and " +
-                    finish + " is " + String.valueOf(distance.get(finishNode)));
-//            return (distance.get(finishNode));
-            List<Node> path = new LinkedList<Node>();
-            Node n = finishNode;
-            while (!n.equals(startNode)) {
-                path.add(0, n);
-                n = predecessors.get(n);
-            }
-            path.add(0, startNode);
-
-            System.out.print("Shortest path: ");
-            for(Node n1 : path) {
-                System.out.print(n1.toString() + " ");
-            }
-            System.out.println("\n" + path.size());
-            return (path.size());
+//            System.out.println("Minimum distance between " + start + " and " +
+//                    finish + " is " + String.valueOf(distance.get(finishNode)));
+            return (distance.get(finishNode));
+//            List<Node> path = new LinkedList<Node>();
+//            Node n = finishNode;
+//            while (!n.equals(startNode)) {
+//                path.add(0, n);
+//                n = predecessors.get(n);
+//            }
+//            path.add(0, startNode);
+//
+////            System.out.print("Shortest path: ");
+////            for(Node n1 : path) {
+////                System.out.print(n1.toString() + " ");
+////            }
+////            System.out.println("\n" + path.size());
+//            return (path.size());
         }
         return 0;
     }
@@ -252,7 +252,7 @@ public class Graph extends HashMap<Coordinate,Node> {
         for(Coordinate coordinate : this.keySet()) {
             distance.put(this.get(coordinate), Integer.MAX_VALUE);
         }
-        distance.put(startNode,  0);
+        distance.put(startNode, 0);
 
         // initialize predecessors - by not yet including any other nodes,
         // they are unvisited and have no predecessor.  Source node is
@@ -283,24 +283,20 @@ public class Graph extends HashMap<Coordinate,Node> {
                 Integer w = e.getWeight();
                 Node n = e.getToNode();
                 // relaxation
-                if (n.getPlayerId() == startNode.getPlayerId()){
+                if (n.getPlayerId().equals(startNode.getPlayerId())){
                     Integer distViaU = distance.get(U) + w;
                     if(distance.get(n) > distViaU) {
                         distance.put(n,  distViaU);
                         predecessors.put(n,  U);
                     }
                 }
-                else if (n.getPlayerId() == 0){
+                if (n.getPlayerId().equals(0)){
                     Integer distViaU = distance.get(U) + w;
                     if(distance.get(n) > distViaU + 1) {
                         distance.put(n,  distViaU);
                         predecessors.put(n,  U);
                     }
                 }
-                else if (n.getPlayerId() != startNode.getPlayerId()){
-
-                }
-
             }
         }
     }
