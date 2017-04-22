@@ -9,9 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.*;
 
-/**
- * Created by Noor Mohammad on 4/21/2017.
- */
+
 public class PathConfig implements Configuration{
 
     /**
@@ -118,6 +116,7 @@ public class PathConfig implements Configuration{
      * @return All successors, valid and invalid
      */
     public Collection<Configuration> getSuccessors(){
+        PathConfig test = deepcopy();
         LinkedList<Configuration> successors = new LinkedList<>();
         for (PlayerMove move : this.allLegalMoves()){
             PathConfig s = new PathConfig(this);
@@ -156,26 +155,27 @@ public class PathConfig implements Configuration{
         return isValid();
     }
 
-    private Collection deepcopy(){
-        Collection newConfig = new ArrayList<>();
+    /**
+     * Takes the old graph and the old board and recreates them
+     * from the
+     * @return
+     */
+    private PathConfig deepcopy(){
+        PathConfig newConfig;
         Graph newgraph = new Graph(this.graph);
         ArrayList<Node> updated = new ArrayList<Node>();
         for (Node i:this.board){
             updated.add(new Node(i));
         }
-        newConfig.add(newgraph);
-        newConfig.add(updated);
-        newConfig.add(start1);
-        newConfig.add(finish1);
-        newConfig.add(start2);
-        newConfig.add(finish2);
-        newConfig.add(dimension);
-        newConfig.add(last);
-        newConfig.add(playerId);
-        newConfig.add(whoseTurn);
-        newConfig.add(numMoves);
+        newConfig = this;
+        newConfig.graph = newgraph;
+        newConfig.board = updated;
         return newConfig;
     }
+    //private void test{
+    //    Collection template = deepcopy();
+    //    template.g
+    //}
 
 
 

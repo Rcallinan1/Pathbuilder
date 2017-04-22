@@ -38,17 +38,6 @@ public class Node {
         }
     }
 
-    public Node deepCopy(Map<Node, Node> isomorphism) {
-        Node copy = isomorphism.get(this);
-        if (copy == null) {
-            copy = new Node(null);
-            isomorphism.put(this, copy);
-            for (Edge neighbor: neighbors) {
-                //copy.neighbors.add(neighbor.deepCopy(isomorphism));
-            }
-        }
-        return copy;
-    }
 
 
 
