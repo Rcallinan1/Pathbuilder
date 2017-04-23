@@ -16,7 +16,7 @@ public class PathConfig implements Configuration{
 //    /**
 //     * A board of empty nodes with coordinates
 //     */
-//    private ArrayList<Node> board;
+    private ArrayList<Node> board;
 
     /**
      * A list of coordinates that represent the location of all the start nodes for player 1
@@ -59,7 +59,7 @@ public class PathConfig implements Configuration{
     private int whoseTurn;
     private int numMoves;
 
-    public PathConfig(Graph graph, ArrayList<Coordinate> start1,
+    public PathConfig(ArrayList<Node> board, Graph graph, ArrayList<Coordinate> start1,
                       ArrayList<Coordinate> start2, ArrayList<Coordinate> finish1,
                       ArrayList<Coordinate> finish2, int dimension, int Id, int whoseTurn, int numMoves){
         this.start1 = start1;
@@ -68,6 +68,15 @@ public class PathConfig implements Configuration{
         this.finish2 = finish2;
         this.playerId = whoseTurn;
         this.dimension = dimension;
+        this.board = new ArrayList<>();
+        for (Node n : board){
+            Node node = new Node(n.getCoordinate(),n.getPlayerId());
+            for (Node temp : n.getNeighbors()){
+                Node r = new Node(temp.getCoordinate(),temp.getPlayerId());
+                node.addNeighbor(r);
+            }
+            this.board.add(node);
+        }
         this.graph = new Graph();
         for (Coordinate coor : graph.keySet()){
             Coordinate coordinate = new Coordinate(coor.getRow(),coor.getCol());
@@ -79,7 +88,7 @@ public class PathConfig implements Configuration{
             this.graph.put(coordinate,node);
         }
         this.last = null;
-        this.graph = graph;
+//        this.graph = graph;
         this.Id = Id;
         this.whoseTurn = whoseTurn;
         this.numMoves = numMoves;
@@ -88,8 +97,8 @@ public class PathConfig implements Configuration{
     protected PathConfig(PathConfig other){
         this.Id = other.Id;
         if (other.whoseTurn == 1){
-            this.whoseTurn = 0;
-        } else if(other.whoseTurn == 0){
+            this.whoseTurn = 2;
+        } else if(other.whoseTurn == 2){
             this.whoseTurn = 1;
         }
         this.last = other.last;
@@ -98,15 +107,25 @@ public class PathConfig implements Configuration{
         this.start2 = other.start2;
         this.finish1 = other.finish1;
         this.finish2 = other.finish2;
-        this.playerId = other.whoseTurn;
+        this.playerId = this.whoseTurn;
         this.dimension = other.dimension;
+        this.board = new ArrayList<>();
+        for (Node n : other.board){
+            Node node = new Node(n.getCoordinate(),n.getPlayerId());
+            for (Node temp : n.getNeighbors()){
+                Node r = new Node(temp.getCoordinate(),temp.getPlayerId());
+                node.addNeighbor(r);
+            }
+            this.board.add(node);
+        }
         this.graph = new Graph();
         for (Coordinate coor : other.graph.keySet()){
             Coordinate coordinate = new Coordinate(coor.getRow(),coor.getCol());
             Node n = other.graph.get(coor);
             Node node = new Node(n.getCoordinate(),n.getPlayerId());
             for (Node temp : n.getNeighbors()){
-                node.addNeighbor(temp);
+                Node r = new Node(temp.getCoordinate(),temp.getPlayerId());
+                node.addNeighbor(r);
             }
             this.graph.put(coordinate,node);
         }
@@ -119,10 +138,9 @@ public class PathConfig implements Configuration{
      */
     public Collection<Configuration> getSuccessors(){
         LinkedList<Configuration> successors = new LinkedList<>();
+        Collection<PlayerMove> temp = this.allLegalMoves();
         for (PlayerMove move : this.allLegalMoves()){
             this.last = move;
-//            PathConfig s = new PathConfig(this.board,this.graph,this.start1,this.start2,this.finish1,this.finish2,
-//                    this.dimension,this.Id,this.whoseTurn,this.numMoves);
             PathConfig s = new PathConfig(this);
             s.last = move;
             s.lastMove(s.last);
@@ -137,14 +155,6 @@ public class PathConfig implements Configuration{
      * @return true if valid; false otherwise
      */
     public boolean isValid(){
-        if (this.numMoves == 0){
-           if (hasWonGame(this.Id)){
-               return true;
-           }
-           else {
-               return false;
-           }
-        }
         return true;
     }
 
@@ -153,10 +163,15 @@ public class PathConfig implements Configuration{
      * @return true if goal; false otherwise
      */
     public boolean isGoal(){
-        if (this.numMoves != 0){
-            return false;
+        if (this.numMoves >= 0){
+            if (hasWonGame(this.Id)){
+                return true;
+            }
+            else {
+                return false;
+            }
         }
-        return isValid();
+        return false;
     }
 
     /**
@@ -175,7 +190,7 @@ public class PathConfig implements Configuration{
         Coordinate east = new Coordinate(r, c + 1);
         Coordinate west = new Coordinate(r, c - 1);
 
-        for (Node node : this.graph.values()) {
+        for (Node node : this.board) {
             if (node.getCoordinate().equals(m.getCoordinate())) {
                 if (m.getPlayerId() == 1) {
                     if ((c % 2) == 1) {
@@ -283,7 +298,7 @@ public class PathConfig implements Configuration{
      */
     public List<PlayerMove> allLegalMoves() {
         LinkedList<PlayerMove> Legal = new LinkedList<PlayerMove>();
-        for (Node node : graph.values()) {
+        for (Node node : board) {
             //If player ID is 0 then the slot is empty, meaning that it is a legal position for the next move.
             if (node.getPlayerId() == 0 && node.getCoordinate().getRow() != 0 && node.getCoordinate().getCol() != 0) {
                 if (node.getCoordinate().getRow() != dimension && node.getCoordinate().getCol() != dimension) {
