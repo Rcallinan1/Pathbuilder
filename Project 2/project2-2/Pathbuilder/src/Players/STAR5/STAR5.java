@@ -398,7 +398,15 @@ public class STAR5 implements PlayerModulePart3 {
      */
     @Override
     public PlayerMove move() {
-        return allLegalMoves().get(0);
+        int count = 0;
+        for (int i = 0; i < start1.size(); i++) {
+            for (int j = 0; j < finish1.size(); j++) {
+                List<Node> node = this.copygraph.searchBFS(this.start1.get(i), this.finish1.get(j));
+                Node test = node.get(0);
+                return new PlayerMove(test.getCoordinate(), 1);
+            }
+        }
+        return null;
     }
 
     /**
