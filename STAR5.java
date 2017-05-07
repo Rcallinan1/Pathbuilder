@@ -812,79 +812,92 @@ public class STAR5 implements PlayerModule {
                 PlayerMove SouthEast = new PlayerMove(southeast, playerId);
                 PlayerMove NorthWest = new PlayerMove(northwest, playerId);
                 PlayerMove SouthWest = new PlayerMove(southwest, playerId);
+                for (PlayerMove move : allLegalMoves()){
+                    PlayerMove t = new PlayerMove(move.getCoordinate(),last.getPlayerId());
+                    temp = fewestSegmentsToVictory(last.getPlayerId());
+                    tempMove(t);
+                    if (hasWonGame(last.getPlayerId())){
+                        undoMove(t);
+                        return move;
+                    }
+                    if (fewestSegmentsToVictory(last.getPlayerId()) < temp){
+                        playerMove = move;
+                    }
+                    undoMove(t);
 
-                if (allLegalMoves().contains(North)) {
-                    tempMove(North);
-                    temp = fewestSegmentsToVictory(last.getPlayerId());
-                    if (temp < min) {
-                        min = temp;
-                        playerMove = North;
-                    }
-                    undoMove(North);
                 }
-                if (allLegalMoves().contains(South)) {
-                    tempMove(South);
-                    temp = fewestSegmentsToVictory(last.getPlayerId());
-                    if (temp < min) {
-                        min = temp;
-                        playerMove = South;
-                    }
-                    undoMove(South);
-                }
-                if (allLegalMoves().contains(East)) {
-                    tempMove(East);
-                    temp = fewestSegmentsToVictory(last.getPlayerId());
-                    if (temp < min) {
-                        min = temp;
-                        playerMove = East;
-                    }
-                    undoMove(East);
-                }
-                if (allLegalMoves().contains(West)) {
-                    tempMove(West);
-                    temp = fewestSegmentsToVictory(last.getPlayerId());
-                    if (temp < min) {
-                        min = temp;
-                        playerMove = West;
-                    }
-                    undoMove(West);
-                }
-                if (allLegalMoves().contains(NorthEast)) {
-                    tempMove(NorthEast);
-                    temp = fewestSegmentsToVictory(last.getPlayerId());
-                    if (temp < min) {
-                        min = temp;
-                        playerMove = NorthEast;
-                    }
-                    undoMove(NorthEast);
-                }
-                if (allLegalMoves().contains(NorthWest)) {
-                    tempMove(NorthWest);
-                    temp = fewestSegmentsToVictory(last.getPlayerId());
-                    if (temp < min) {
-                        min = temp;
-                        playerMove = NorthWest;
-                    }
-                    undoMove(NorthWest);
-                }
-                if (allLegalMoves().contains(SouthEast)) {
-                    tempMove(SouthEast);
-                    temp = fewestSegmentsToVictory(last.getPlayerId());
-                    if (temp < min) {
-                        min = temp;
-                        playerMove = SouthEast;
-                    }
-                    undoMove(SouthEast);
-                }
-                if (allLegalMoves().contains(SouthWest)) {
-                    tempMove(SouthWest);
-                    temp = fewestSegmentsToVictory(last.getPlayerId());
-                    if (temp < min) {
-                        min = temp;
-                        playerMove = SouthWest;
-                    }
-                    undoMove(SouthWest);
-                }
+//                if (allLegalMoves().contains(North)) {
+//                    tempMove(North);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = North;
+//                    }
+//                    undoMove(North);
+//                }
+//                if (allLegalMoves().contains(South)) {
+//                    tempMove(South);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = South;
+//                    }
+//                    undoMove(South);
+//                }
+//                if (allLegalMoves().contains(East)) {
+//                    tempMove(East);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = East;
+//                    }
+//                    undoMove(East);
+//                }
+//                if (allLegalMoves().contains(West)) {
+//                    tempMove(West);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = West;
+//                    }
+//                    undoMove(West);
+//                }
+//                if (allLegalMoves().contains(NorthEast)) {
+//                    tempMove(NorthEast);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = NorthEast;
+//                    }
+//                    undoMove(NorthEast);
+//                }
+//                if (allLegalMoves().contains(NorthWest)) {
+//                    tempMove(NorthWest);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = NorthWest;
+//                    }
+//                    undoMove(NorthWest);
+//                }
+//                if (allLegalMoves().contains(SouthEast)) {
+//                    tempMove(SouthEast);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = SouthEast;
+//                    }
+//                    undoMove(SouthEast);
+//                }
+//                if (allLegalMoves().contains(SouthWest)) {
+//                    tempMove(SouthWest);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = SouthWest;
+//                    }
+//                    undoMove(SouthWest);
+//                }
             }
         }
         if (last != null) {
