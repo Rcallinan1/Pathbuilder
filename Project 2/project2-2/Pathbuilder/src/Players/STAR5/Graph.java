@@ -179,6 +179,61 @@ public class Graph extends HashMap<Coordinate,Node> {
 
         return path;
     }
+
+//    /**
+//     * Method to compute and display the shortest path in a weighted graph
+//     * from a start node to a finish node.
+//     *
+//     * Precondition: the inputs correspond to nodes in the graph.
+//     *
+//     * @param start Coordinate of starting node
+//     * @param finish Coordinate of finishing node
+//     *
+//     */
+//    public List<Node> getShortestPath(Coordinate start, Coordinate finish) {
+//
+//        // assumes input check occurs previously
+//        Node startNode, finishNode;
+//        startNode = this.get(start);
+//        finishNode = this.get(finish);
+//
+//        // create a distance map that will hold the shortest path distance
+//        // to each node from the given startNode.  We will just use the
+//        // maximum Integer value to represent infinity
+//        Map<Node, Integer> distance = new HashMap<Node, Integer>();
+//
+//        // create a predecessor map that will be used to determine
+//        // the shortest path to each node from the given startNode.
+//        // If a node is not yet in the map, that is equivalent to the
+//        // node not having a predecessor, and not being reachable.
+//        Map<Node, Node> predecessors = new HashMap<Node, Node>();
+//
+//        dijkstra(startNode, distance, predecessors);
+//
+//        if(distance.get(finishNode) == Integer.MAX_VALUE) {
+////            System.out.println("No path from " + start + " to " + finish);
+//        }
+//        else {
+////            System.out.println("Minimum distance between " + start + " and " +
+////                    finish + " is " + String.valueOf(distance.get(finishNode)));
+//            List<Node> path = new LinkedList<Node>();
+//            Node n = finishNode;
+//            while (!n.equals(startNode)) {
+//                path.add(0, n);
+//                n = predecessors.get(n);
+//            }
+//            path.add(0, startNode);
+//
+//////            System.out.print("Shortest path: ");
+//////            for(Node n1 : path) {
+//////                System.out.print(n1.toString() + " ");
+//////            }
+//////            System.out.println("\n" + path.size());
+//            return (path);
+//        }
+//        return null;
+//    }
+
     /**
      * Method to compute and display the shortest path in a weighted graph
      * from a start node to a finish node.
@@ -189,7 +244,6 @@ public class Graph extends HashMap<Coordinate,Node> {
      * @param finish Coordinate of finishing node
      *
      */
-
     public int displayShortestPath(Coordinate start, Coordinate finish) {
 
         // assumes input check occurs previously

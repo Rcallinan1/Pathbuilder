@@ -9,7 +9,7 @@ import java.util.*;
  *
  * Created by Noor Mohammad on 3/20/2017.
  */
-public class STAR5 implements PlayerModulePart3 {
+public class STAR5 implements PlayerModule {
 
     /**
      * A board of empty nodes with coordinates
@@ -62,6 +62,9 @@ public class STAR5 implements PlayerModulePart3 {
      */
     private ArrayList<Node> copyboard;
 
+    private PlayerMove last;
+
+    private List<PlayerMove> oppmove;
 
     /**
      * Method called to initialize a player module. Required task for part 1.
@@ -78,7 +81,7 @@ public class STAR5 implements PlayerModulePart3 {
         if (dim < 3 || dim > 20) {
             throw new IllegalArgumentException("The value for DIM is not in the legal range [3,20]");
         }
-
+        oppmove = new ArrayList<>();
         board = new ArrayList<Node>();
         graph = new Graph();
         this.playerId = playerId;
@@ -209,6 +212,12 @@ public class STAR5 implements PlayerModulePart3 {
      */
     @Override
     public void lastMove(PlayerMove m) {
+        if (m.getPlayerId() != playerId) {
+            last = m;
+        }
+        if (m.getPlayerId() != playerId) {
+            oppmove.add(m);
+        }
         int c = m.getCoordinate().getCol();
         int r = m.getCoordinate().getRow();
         Coordinate north = new Coordinate(r - 1, c);
@@ -283,10 +292,14 @@ public class STAR5 implements PlayerModulePart3 {
         }
         for (Node node : copyboard) {
             if (node.getCoordinate().equals(m.getCoordinate())) {
+                Node East = copygraph.get(east);
+                Node West = copygraph.get(west);
+                Node North = copygraph.get(north);
+                Node South = copygraph.get(south);
                 if (m.getPlayerId() == 1) {
                     if ((c % 2) == 1) {
-                        Node East = copygraph.get(east);
-                        Node West = copygraph.get(west);
+                        North.removeNeighbor(South);
+                        South.removeNeighbor(North);
                         East.removeNeighbor(West);
                         West.removeNeighbor(East);
                         East.addNeighbor(West);
@@ -300,10 +313,10 @@ public class STAR5 implements PlayerModulePart3 {
                         copygraph.put(west, West);
                         copygraph.put(node.getCoordinate(),node);
                     } else if ((c % 2) == 0) {
-                        Node North = copygraph.get(north);
-                        Node South = copygraph.get(south);
                         North.assign(1);
                         South.assign(1);
+                        East.removeNeighbor(West);
+                        West.removeNeighbor(East);
                         North.removeNeighbor(South);
                         South.removeNeighbor(North);
                         North.addNeighbor(South);
@@ -313,6 +326,212 @@ public class STAR5 implements PlayerModulePart3 {
                         node.addNeighbor(North);
                         node.addNeighbor(South);
                         node.assign(1);
+                        copygraph.put(north, North);
+                        copygraph.put(south, South);
+                        copygraph.put(node.getCoordinate(),node);
+                    }
+                }
+                else if (m.getPlayerId() == 2) {
+                    if ((c % 2) == 0) {
+                        North.removeNeighbor(South);
+                        South.removeNeighbor(North);
+                        East.assign(2);
+                        West.assign(2);
+                        East.removeNeighbor(West);
+                        West.removeNeighbor(East);
+                        East.addNeighbor(West);
+                        West.addNeighbor(East);
+                        East.addNeighbor(node);
+                        West.addNeighbor(node);
+                        node.assign(2);
+                        node.addNeighbor(East);
+                        node.addNeighbor(West);
+                        copygraph.put(east, East);
+                        copygraph.put(west, West);
+                        copygraph.put(node.getCoordinate(),node);
+                    } else if ((c % 2) == 1) {
+                        East.removeNeighbor(West);
+                        West.removeNeighbor(East);
+                        North.assign(2);
+                        South.assign(2);
+                        North.removeNeighbor(South);
+                        South.removeNeighbor(North);
+                        North.addNeighbor(South);
+                        South.addNeighbor(North);
+                        North.addNeighbor(node);
+                        South.addNeighbor(node);
+                        node.addNeighbor(North);
+                        node.addNeighbor(South);
+                        node.assign(2);
+                        copygraph.put(north, North);
+                        copygraph.put(south, South);
+                        copygraph.put(node.getCoordinate(),node);
+                    }
+                }
+            }
+        }
+    }
+    public void undoMove(PlayerMove m) {
+        int c = m.getCoordinate().getCol();
+        int r = m.getCoordinate().getRow();
+        Coordinate north = new Coordinate(r - 1, c);
+        Coordinate south = new Coordinate(r + 1, c);
+        Coordinate east = new Coordinate(r, c + 1);
+        Coordinate west = new Coordinate(r, c - 1);
+
+        for (Node node : board) {
+            if (node.getCoordinate().equals(m.getCoordinate())) {
+                if (m.getPlayerId() == 1) {
+                    if ((c % 2) == 1) {
+                        Node East = graph.get(east);
+                        Node West = graph.get(west);
+                        if (East.getNeighbors().isEmpty()){
+                            if (!start1.contains(East) && !finish1.contains(East))
+                            East.assign(0);
+                        }
+                        if (West.getNeighbors().isEmpty()){
+                            if (!start1.contains(West) && !finish1.contains(West))
+                                West.assign(0);
+                        }
+                        East.removeNeighbor(West);
+                        West.removeNeighbor(East);
+                        East.removeNeighbor(node);
+                        West.removeNeighbor(node);
+                        node.removeNeighbor(East);
+                        node.removeNeighbor(West);
+                        node.assign(0);
+                        graph.put(east, East);
+                        graph.put(west, West);
+                    } else if ((c % 2) == 0) {
+                        Node North = graph.get(north);
+                        Node South = graph.get(south);
+                        if (North.getNeighbors().isEmpty()){
+                            if (!start1.contains(North) && !finish1.contains(North))
+                                North.assign(0);
+                        }
+                        if (South.getNeighbors().isEmpty()){
+                            if (!start1.contains(South) && !finish1.contains(South))
+                                South.assign(0);
+                        }
+                        North.removeNeighbor(South);
+                        South.removeNeighbor(North);
+                        North.removeNeighbor(node);
+                        South.removeNeighbor(node);
+                        node.removeNeighbor(South);
+                        node.removeNeighbor(North);
+                        node.assign(0);
+                        graph.put(north, North);
+                        graph.put(south, South);
+                    }
+                } else if (m.getPlayerId() == 2) {
+                    if ((c % 2) == 0) {
+                        Node East = graph.get(east);
+                        Node West = graph.get(west);
+                        if (East.getNeighbors().isEmpty()){
+                            if (!start2.contains(East) && !finish2.contains(East))
+                                East.assign(0);
+                        }
+                        if (West.getNeighbors().isEmpty()){
+                            if (!start2.contains(West) && !finish2.contains(West))
+                                West.assign(0);
+                        }
+                        East.removeNeighbor(West);
+                        West.removeNeighbor(East);
+                        East.removeNeighbor(node);
+                        West.removeNeighbor(node);
+                        node.removeNeighbor(East);
+                        node.removeNeighbor(West);
+                        node.assign(0);
+                        graph.put(east, East);
+                        graph.put(west, West);
+                    } else if ((c % 2) == 1) {
+                        Node North = graph.get(north);
+                        Node South = graph.get(south);
+                        if (North.getNeighbors().isEmpty()){
+                            if (!start2.contains(North) && !finish2.contains(North))
+                                North.assign(0);
+                        }
+                        if (South.getNeighbors().isEmpty()){
+                            if (!start2.contains(South) && !finish2.contains(South))
+                                South.assign(0);
+                        }
+                        North.removeNeighbor(South);
+                        South.removeNeighbor(North);
+                        North.removeNeighbor(node);
+                        South.removeNeighbor(node);
+                        node.removeNeighbor(South);
+                        node.removeNeighbor(North);
+                        node.assign(0);
+                        graph.put(north, North);
+                        graph.put(south, South);
+                    }
+                }
+            }
+        }
+
+        for (Node node : copyboard) {
+            if (node.getCoordinate().equals(m.getCoordinate())) {
+                if (m.getPlayerId() == 1) {
+                    if ((c % 2) == 1) {
+                        Node East = copygraph.get(east);
+                        Node West = copygraph.get(west);
+                        East.removeNeighbor(West);
+                        West.removeNeighbor(East);
+                        East.addNeighbor(West,1);
+                        West.addNeighbor(East,1);
+                        East.removeNeighbor(node);
+                        West.removeNeighbor(node);
+                        node.assign(0);
+                        node.removeNeighbor(East);
+                        node.removeNeighbor(West);
+                        copygraph.put(east, East);
+                        copygraph.put(west, West);
+                        copygraph.put(node.getCoordinate(),node);
+                    } else if ((c % 2) == 0) {
+                        Node North = copygraph.get(north);
+                        Node South = copygraph.get(south);
+                        North.removeNeighbor(South);
+                        South.removeNeighbor(North);
+                        North.addNeighbor(South,1);
+                        South.addNeighbor(North,1);
+                        North.removeNeighbor(node);
+                        South.removeNeighbor(node);
+                        node.removeNeighbor(North);
+                        node.removeNeighbor(South);
+                        node.assign(0);
+                        copygraph.put(north, North);
+                        copygraph.put(south, South);
+                        copygraph.put(node.getCoordinate(),node);
+                    }
+                }
+                else if (m.getPlayerId() == 2) {
+                    if ((c % 2) == 0) {
+                        Node East = copygraph.get(east);
+                        Node West = copygraph.get(west);
+                        East.removeNeighbor(West);
+                        West.removeNeighbor(East);
+                        East.addNeighbor(West,1);
+                        West.addNeighbor(East,1);
+                        East.removeNeighbor(node);
+                        West.removeNeighbor(node);
+                        node.assign(0);
+                        node.removeNeighbor(East);
+                        node.removeNeighbor(West);
+                        copygraph.put(east, East);
+                        copygraph.put(west, West);
+                        copygraph.put(node.getCoordinate(),node);
+                    } else if ((c % 2) == 1) {
+                        Node North = copygraph.get(north);
+                        Node South = copygraph.get(south);
+                        North.removeNeighbor(South);
+                        South.removeNeighbor(North);
+                        North.addNeighbor(South,1);
+                        South.addNeighbor(North,1);
+                        North.removeNeighbor(node);
+                        South.removeNeighbor(node);
+                        node.removeNeighbor(North);
+                        node.removeNeighbor(South);
+                        node.assign(0);
                         copygraph.put(north, North);
                         copygraph.put(south, South);
                         copygraph.put(node.getCoordinate(),node);
@@ -358,7 +577,158 @@ public class STAR5 implements PlayerModulePart3 {
             }
         }
     }
+    public void tempMove(PlayerMove m){
+        if (m.getPlayerId() != playerId) {
+            last = m;
+        }
+        if (m.getPlayerId() != playerId) {
+            oppmove.add(m);
+        }
+        int c = m.getCoordinate().getCol();
+        int r = m.getCoordinate().getRow();
+        Coordinate north = new Coordinate(r - 1, c);
+        Coordinate south = new Coordinate(r + 1, c);
+        Coordinate east = new Coordinate(r, c + 1);
+        Coordinate west = new Coordinate(r, c - 1);
 
+        for (Node node : board) {
+            if (node.getCoordinate().equals(m.getCoordinate())) {
+                if (m.getPlayerId() == 1) {
+                    if ((c % 2) == 1) {
+                        Node East = graph.get(east);
+                        Node West = graph.get(west);
+                        East.assign(1);
+                        West.assign(1);
+                        East.addNeighbor(West, 1);
+                        West.addNeighbor(East, 1);
+                        East.addNeighbor(node, 1);
+                        West.addNeighbor(node, 1);
+                        node.addNeighbor(East, 1);
+                        node.addNeighbor(West, 1);
+                        node.assign(1);
+                        graph.put(east, East);
+                        graph.put(west, West);
+                    } else if ((c % 2) == 0) {
+                        Node North = graph.get(north);
+                        Node South = graph.get(south);
+                        North.assign(1);
+                        South.assign(1);
+                        North.addNeighbor(South, 1);
+                        South.addNeighbor(North, 1);
+                        North.addNeighbor(node, 1);
+                        South.addNeighbor(node, 1);
+                        node.addNeighbor(North, 1);
+                        node.addNeighbor(South, 1);
+                        node.assign(1);
+                        graph.put(north, North);
+                        graph.put(south, South);
+                    }
+                } else if (m.getPlayerId() == 2) {
+                    if ((c % 2) == 0) {
+                        Node East = graph.get(east);
+                        Node West = graph.get(west);
+                        East.assign(2);
+                        West.assign(2);
+                        East.addNeighbor(West, 1);
+                        West.addNeighbor(East, 1);
+                        East.addNeighbor(node, 1);
+                        West.addNeighbor(node, 1);
+                        node.addNeighbor(East, 1);
+                        node.addNeighbor(West, 1);
+                        node.assign(2);
+                        graph.put(east, East);
+                        graph.put(west, West);
+                    } else if ((c % 2) == 1) {
+                        Node North = graph.get(north);
+                        Node South = graph.get(south);
+                        North.assign(2);
+                        South.assign(2);
+                        North.addNeighbor(South, 1);
+                        South.addNeighbor(North, 1);
+                        North.addNeighbor(node, 1);
+                        South.addNeighbor(node, 1);
+                        node.addNeighbor(North, 1);
+                        node.addNeighbor(South, 1);
+                        node.assign(2);
+                        graph.put(north, North);
+                        graph.put(south, South);
+                    }
+                }
+            }
+        }
+        for (Node node : copyboard) {
+            if (node.getCoordinate().equals(m.getCoordinate())) {
+                Node East = copygraph.get(east);
+                Node West = copygraph.get(west);
+                Node North = copygraph.get(north);
+                Node South = copygraph.get(south);
+                if (m.getPlayerId() == 1) {
+                    if ((c % 2) == 1) {
+                        East.removeNeighbor(West);
+                        West.removeNeighbor(East);
+                        East.addNeighbor(West);
+                        West.addNeighbor(East);
+                        East.addNeighbor(node);
+                        West.addNeighbor(node);
+                        node.assign(1);
+                        node.addNeighbor(East);
+                        node.addNeighbor(West);
+                        copygraph.put(east, East);
+                        copygraph.put(west, West);
+                        copygraph.put(node.getCoordinate(),node);
+                    } else if ((c % 2) == 0) {
+                        North.assign(1);
+                        South.assign(1);
+                        North.removeNeighbor(South);
+                        South.removeNeighbor(North);
+                        North.addNeighbor(South);
+                        South.addNeighbor(North);
+                        North.addNeighbor(node);
+                        South.addNeighbor(node);
+                        node.addNeighbor(North);
+                        node.addNeighbor(South);
+                        node.assign(1);
+                        copygraph.put(north, North);
+                        copygraph.put(south, South);
+                        copygraph.put(node.getCoordinate(),node);
+                    }
+                }
+                else if (m.getPlayerId() == 2) {
+                    if ((c % 2) == 0) {
+                        East.assign(2);
+                        West.assign(2);
+                        East.removeNeighbor(West);
+                        West.removeNeighbor(East);
+                        East.addNeighbor(West);
+                        West.addNeighbor(East);
+                        East.addNeighbor(node);
+                        West.addNeighbor(node);
+                        node.assign(2);
+                        node.addNeighbor(East);
+                        node.addNeighbor(West);
+                        copygraph.put(east, East);
+                        copygraph.put(west, West);
+                        copygraph.put(node.getCoordinate(),node);
+                    } else if ((c % 2) == 1) {
+                        North.assign(2);
+                        South.assign(2);
+                        North.removeNeighbor(South);
+                        South.removeNeighbor(North);
+                        North.addNeighbor(South);
+                        South.addNeighbor(North);
+                        North.addNeighbor(node);
+                        South.addNeighbor(node);
+                        node.addNeighbor(North);
+                        node.addNeighbor(South);
+                        node.assign(2);
+                        copygraph.put(north, North);
+                        copygraph.put(south, South);
+                        copygraph.put(node.getCoordinate(),node);
+                    }
+                }
+            }
+        }
+    }
     /**
      * Part 1 task that tests if a player has won the game given a set of PREMOVEs.
      *
@@ -398,16 +768,243 @@ public class STAR5 implements PlayerModulePart3 {
      */
     @Override
     public PlayerMove move() {
-        int count = 0;
-        for (int i = 0; i < start1.size(); i++) {
-            for (int j = 0; j < finish1.size(); j++) {
-                List<Node> node = this.copygraph.searchBFS(this.start1.get(i), this.finish1.get(j));
-                Node test = node.get(0);
-                return new PlayerMove(test.getCoordinate(), 1);
+        List<PlayerMove> allmoves = allLegalMoves();
+        Random rand = new Random();
+        int i = rand.nextInt(allmoves.size());
+        PlayerMove playerMove = allmoves.get(0);
+        ArrayList<Coordinate> finish = new ArrayList<>();
+        ArrayList<Coordinate> start = new ArrayList<>();
+        if (playerId == 1){
+            finish = finish1;
+            start = start1;
+        }
+        else{
+            finish = finish2;
+            start = start2;
+        }
+        int min = 100;
+        int temp = 0;
+        for (PlayerMove move : allmoves){
+            tempMove(move);
+            if (hasWonGame(playerId)){
+                undoMove(move);
+                return move;
+            }
+            undoMove(move);
+        }
+        if (last != null) {
+            if (fewestSegmentsToVictory(last.getPlayerId()) <= 4) {
+                int c = last.getCoordinate().getCol();
+                int r = last.getCoordinate().getRow();
+                Coordinate north = new Coordinate(r - 2, c);
+                Coordinate south = new Coordinate(r + 2, c);
+                Coordinate east = new Coordinate(r, c + 2);
+                Coordinate west = new Coordinate(r, c - 2);
+                Coordinate northeast = new Coordinate(r - 1, c + 1);
+                Coordinate northwest = new Coordinate(r - 1, c - 1);
+                Coordinate southeast = new Coordinate(r + 1, c + 1);
+                Coordinate southwest = new Coordinate(r + 1, c - 1);
+                PlayerMove North = new PlayerMove(north, playerId);
+                PlayerMove South = new PlayerMove(south, playerId);
+                PlayerMove East = new PlayerMove(east, playerId);
+                PlayerMove West = new PlayerMove(west, playerId);
+                PlayerMove NorthEast = new PlayerMove(northeast, playerId);
+                PlayerMove SouthEast = new PlayerMove(southeast, playerId);
+                PlayerMove NorthWest = new PlayerMove(northwest, playerId);
+                PlayerMove SouthWest = new PlayerMove(southwest, playerId);
+                for (PlayerMove move : allLegalMoves()){
+                    PlayerMove t = new PlayerMove(move.getCoordinate(),last.getPlayerId());
+                    temp = fewestSegmentsToVictory(last.getPlayerId());
+                    tempMove(t);
+                    if (hasWonGame(last.getPlayerId())){
+                        undoMove(t);
+                        return move;
+                    }
+                    if (fewestSegmentsToVictory(last.getPlayerId()) < temp){
+                        playerMove = move;
+                    }
+                    undoMove(t);
+
+                }
+//                if (allLegalMoves().contains(North)) {
+//                    tempMove(North);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = North;
+//                    }
+//                    undoMove(North);
+//                }
+//                if (allLegalMoves().contains(South)) {
+//                    tempMove(South);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = South;
+//                    }
+//                    undoMove(South);
+//                }
+//                if (allLegalMoves().contains(East)) {
+//                    tempMove(East);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = East;
+//                    }
+//                    undoMove(East);
+//                }
+//                if (allLegalMoves().contains(West)) {
+//                    tempMove(West);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = West;
+//                    }
+//                    undoMove(West);
+//                }
+//                if (allLegalMoves().contains(NorthEast)) {
+//                    tempMove(NorthEast);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = NorthEast;
+//                    }
+//                    undoMove(NorthEast);
+//                }
+//                if (allLegalMoves().contains(NorthWest)) {
+//                    tempMove(NorthWest);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = NorthWest;
+//                    }
+//                    undoMove(NorthWest);
+//                }
+//                if (allLegalMoves().contains(SouthEast)) {
+//                    tempMove(SouthEast);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = SouthEast;
+//                    }
+//                    undoMove(SouthEast);
+//                }
+//                if (allLegalMoves().contains(SouthWest)) {
+//                    tempMove(SouthWest);
+//                    temp = fewestSegmentsToVictory(last.getPlayerId());
+//                    if (temp < min) {
+//                        min = temp;
+//                        playerMove = SouthWest;
+//                    }
+//                    undoMove(SouthWest);
+//                }
             }
         }
-        return null;
+        if (last != null) {
+            temp = fewestSegmentsToVictory(last.getPlayerId());
+            tempMove(playerMove);
+            if (temp != fewestSegmentsToVictory(last.getPlayerId())) {
+                undoMove(playerMove);
+                return playerMove;
+            }
+            undoMove(playerMove);
+        }
+        min = 100;
+        for (PlayerMove move : allmoves){
+            int c = move.getCoordinate().getCol();
+            int r = move.getCoordinate().getRow();
+            Coordinate north = new Coordinate(r - 1, c);
+            Coordinate south = new Coordinate(r + 1, c);
+            Coordinate east = new Coordinate(r, c + 1);
+            Coordinate west = new Coordinate(r, c - 1);
+            for (Coordinate f : finish){
+                if (graph.canReachBFS(north,f)) {
+                    for (Coordinate s : start) {
+                        if (copygraph.canReachBFS(move.getCoordinate(), s)) {
+                            temp = copygraph.searchBFS(move.getCoordinate(),s).size();
+                            if (temp < min){
+                                playerMove = move;
+                            }
+                        }
+                    }
+                }
+                if (graph.canReachBFS(south,f)) {
+                    for (Coordinate s : start) {
+                        if (copygraph.canReachBFS(move.getCoordinate(), s)) {
+                            temp = copygraph.searchBFS(move.getCoordinate(),s).size();
+                            if (temp < min){
+                                playerMove = move;
+                            }
+                        }
+                    }
+                }
+                if (graph.canReachBFS(east,f)) {
+                    for (Coordinate s : start) {
+                        if (copygraph.canReachBFS(move.getCoordinate(), s)) {
+                            temp = copygraph.searchBFS(move.getCoordinate(),s).size();
+                            if (temp < min){
+                                playerMove = move;
+                            }
+                        }
+                    }
+                }
+                if (graph.canReachBFS(west,f)) {
+                    for (Coordinate s : start) {
+                        if (copygraph.canReachBFS(move.getCoordinate(), s)) {
+                            temp = copygraph.searchBFS(move.getCoordinate(),s).size();
+                            if (temp < min){
+                                playerMove = move;
+                            }
+                        }
+                    }
+                }
+            }
+            for (Coordinate s : start){
+                if (graph.canReachBFS(north,s)) {
+                    for (Coordinate f : finish) {
+                        if (copygraph.canReachBFS(move.getCoordinate(), f)) {
+                            temp = copygraph.searchBFS(move.getCoordinate(),f).size();
+                            if (temp < min){
+                                playerMove = move;
+                            }
+                        }
+                    }
+                }
+                if (graph.canReachBFS(south,s)) {
+                    for (Coordinate f : finish) {
+                        if (copygraph.canReachBFS(move.getCoordinate(), f)) {
+                            temp = copygraph.searchBFS(move.getCoordinate(),f).size();
+                            if (temp < min){
+                                playerMove = move;
+                            }
+                        }
+                    }
+                }
+                if (graph.canReachBFS(east,s)) {
+                    for (Coordinate f : finish) {
+                        if (copygraph.canReachBFS(move.getCoordinate(), f)) {
+                            temp = copygraph.searchBFS(move.getCoordinate(),f).size();
+                            if (temp < min){
+                                playerMove = move;
+                            }
+                        }
+                    }
+                }
+                if (graph.canReachBFS(west,s)) {
+                    for (Coordinate f : finish) {
+                        if (copygraph.canReachBFS(move.getCoordinate(), f)) {
+                            temp = copygraph.searchBFS(move.getCoordinate(),f).size();
+                            if (temp < min){
+                                playerMove = move;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return playerMove;
     }
+
 
     /**
      * Indicates that the other player has been invalidated. Required task for Part 2.
@@ -484,7 +1081,7 @@ public class STAR5 implements PlayerModulePart3 {
         else if (i == 2){
             for (Coordinate start: start2){
                 for (Coordinate finish : finish2){
-                    num = copygraph.displayShortestPath(start,finish) + 1;
+                    num = copygraph.displayShortestPath(start,finish);
                     if (num < temp && num != 0) {
                         temp = num;
                     }
@@ -506,11 +1103,8 @@ public class STAR5 implements PlayerModulePart3 {
      * @return boolean indicating whether it is possible for the indicated player to guarantee a win
      *      after the specified number of total moves
      */
-    @Override
     public boolean isWinnable(int playerId, int whoseTurn, int numMoves) {
-        PathConfig init = new PathConfig(board,graph,start1,start2,finish1,finish2
-                ,dimension,whoseTurn,playerId,numMoves);
-
+        PathConfig init = new PathConfig(board, graph, start1, start2, finish1, finish2, dimension,whoseTurn,playerId,numMoves);
         // create the backtracker with the debug flag
 //        boolean debug = args[1].equals("true");
         Backtracker bt = new Backtracker(false);
@@ -534,19 +1128,4 @@ public class STAR5 implements PlayerModulePart3 {
 
     }
 
-    public Graph getGraph(){
-        return this.graph;
-    }
-
-    public ArrayList<Node> getBoard(){
-        return this.board;
-    }
-
-    public int getPlayerId(){
-        return this.playerId;
-    }
-
-    public void setPlayerId(int PlayerId){
-        this.playerId = PlayerId;
-    }
 }

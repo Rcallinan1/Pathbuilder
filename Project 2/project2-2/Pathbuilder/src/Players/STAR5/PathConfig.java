@@ -13,9 +13,9 @@ import java.util.List;
  */
 public class PathConfig implements Configuration{
 
-    /**
-     * A board of empty nodes with coordinates
-     */
+//    /**
+//     * A board of empty nodes with coordinates
+//     */
     private ArrayList<Node> board;
 
     /**
@@ -68,48 +68,37 @@ public class PathConfig implements Configuration{
         this.finish2 = finish2;
         this.playerId = whoseTurn;
         this.dimension = dimension;
-        this.board = new ArrayList<>(board);
-//        this.graph = new Graph(graph);
-//        this.board = board;
-//        for (Coordinate coor : graph.keySet()){
-//            Coordinate coordinate = new Coordinate(coor.getRow(),coor.getCol());
-//            Node n = new Node(graph.get(coor));
-//            this.graph.put(coordinate,n);
-//        }
+        this.board = new ArrayList<>();
+        for (Node n : board){
+            Node node = new Node(n.getCoordinate(),n.getPlayerId());
+            for (Node temp : n.getNeighbors()){
+                Node r = new Node(temp.getCoordinate(),temp.getPlayerId());
+                node.addNeighbor(r);
+            }
+            this.board.add(node);
+        }
+        this.graph = new Graph();
+        for (Coordinate coor : graph.keySet()){
+            Coordinate coordinate = new Coordinate(coor.getRow(),coor.getCol());
+            Node n = graph.get(coor);
+            Node node = new Node(n.getCoordinate(),n.getPlayerId());
+            for (Node temp : n.getNeighbors()){
+                node.addNeighbor(temp);
+            }
+            this.graph.put(coordinate,node);
+        }
         this.last = null;
-        this.graph = graph;
+//        this.graph = graph;
         this.Id = Id;
         this.whoseTurn = whoseTurn;
         this.numMoves = numMoves;
     }
 
-    /**
-      * Takes the old graph and the old board and recreates them
-      * from the
-      * @return
-      */
-     private PathConfig deepcopy(){
-        PathConfig newConfig;
-        Graph newgraph = new Graph();
-        for (Coordinate coordinate : this.graph.keySet()){
-            newgraph.put(coordinate,new Node(this.graph.get(coordinate)));
-        }
-        ArrayList<Node> updated = new ArrayList<Node>();
-        for (Node i:this.board){
-            updated.add(new Node(i));
-        }
-        newConfig = this;
-        newConfig.graph = newgraph;
-        newConfig.board = updated;
-        newConfig.lastMove(this.last);
-        return newConfig;
-    }
-
     protected PathConfig(PathConfig other){
         this.Id = other.Id;
         if (other.whoseTurn == 1){
-            this.whoseTurn = 0;
-        } else if(other.whoseTurn == 0){
+            this.whoseTurn = 2;
+        } else if(other.whoseTurn == 2){
             this.whoseTurn = 1;
         }
         this.last = other.last;
@@ -118,18 +107,27 @@ public class PathConfig implements Configuration{
         this.start2 = other.start2;
         this.finish1 = other.finish1;
         this.finish2 = other.finish2;
-        this.playerId = other.whoseTurn;
+        this.playerId = this.whoseTurn;
         this.dimension = other.dimension;
         this.board = new ArrayList<>();
-        this.graph = new Graph();
-        for (Node node : other.board){
-            Node n = new Node(node);
-            this.board.add(n);
+        for (Node n : other.board){
+            Node node = new Node(n.getCoordinate(),n.getPlayerId());
+            for (Node temp : n.getNeighbors()){
+                Node r = new Node(temp.getCoordinate(),temp.getPlayerId());
+                node.addNeighbor(r);
+            }
+            this.board.add(node);
         }
+        this.graph = new Graph();
         for (Coordinate coor : other.graph.keySet()){
             Coordinate coordinate = new Coordinate(coor.getRow(),coor.getCol());
-            Node n = new Node(other.graph.get(coor));
-            this.graph.put(coordinate,n);
+            Node n = other.graph.get(coor);
+            Node node = new Node(n.getCoordinate(),n.getPlayerId());
+            for (Node temp : n.getNeighbors()){
+                Node r = new Node(temp.getCoordinate(),temp.getPlayerId());
+                node.addNeighbor(r);
+            }
+            this.graph.put(coordinate,node);
         }
         this.lastMove(this.last);
     }
@@ -140,9 +138,12 @@ public class PathConfig implements Configuration{
      */
     public Collection<Configuration> getSuccessors(){
         LinkedList<Configuration> successors = new LinkedList<>();
+        Collection<PlayerMove> temp = this.allLegalMoves();
         for (PlayerMove move : this.allLegalMoves()){
             this.last = move;
             PathConfig s = new PathConfig(this);
+            s.last = move;
+            s.lastMove(s.last);
             successors.add(s);
         }
         return successors;
@@ -154,14 +155,6 @@ public class PathConfig implements Configuration{
      * @return true if valid; false otherwise
      */
     public boolean isValid(){
-        if (this.numMoves == 0){
-           if (hasWonGame(this.Id)){
-               return true;
-           }
-           else {
-               return false;
-           }
-        }
         return true;
     }
 
@@ -170,10 +163,15 @@ public class PathConfig implements Configuration{
      * @return true if goal; false otherwise
      */
     public boolean isGoal(){
-        if (this.numMoves != 0){
-            return false;
+        if (this.numMoves >= 0){
+            if (hasWonGame(this.Id)){
+                return true;
+            }
+            else {
+                return false;
+            }
         }
-        return isValid();
+        return false;
     }
 
     /**
@@ -257,82 +255,6 @@ public class PathConfig implements Configuration{
                 }
             }
         }
-//        for (Node node : copyboard) {
-//            if (node.getCoordinate().equals(m.getCoordinate())) {
-//                if (m.getPlayerId() == 1) {
-//                    if ((c % 2) == 1) {
-//                        Node East = copygraph.get(east);
-//                        Node West = copygraph.get(west);
-//                        East.removeNeighbor(West);
-//                        West.removeNeighbor(East);
-//                        East.addNeighbor(West);
-//                        West.addNeighbor(East);
-//                        East.addNeighbor(node);
-//                        West.addNeighbor(node);
-//                        node.assign(1);
-//                        node.addNeighbor(East);
-//                        node.addNeighbor(West);
-//                        copygraph.put(east, East);
-//                        copygraph.put(west, West);
-//                        copygraph.put(node.getCoordinate(),node);
-//                    } else if ((c % 2) == 0) {
-//                        Node North = copygraph.get(north);
-//                        Node South = copygraph.get(south);
-//                        North.assign(1);
-//                        South.assign(1);
-//                        North.removeNeighbor(South);
-//                        South.removeNeighbor(North);
-//                        North.addNeighbor(South);
-//                        South.addNeighbor(North);
-//                        North.addNeighbor(node);
-//                        South.addNeighbor(node);
-//                        node.addNeighbor(North);
-//                        node.addNeighbor(South);
-//                        node.assign(1);
-//                        copygraph.put(north, North);
-//                        copygraph.put(south, South);
-//                        copygraph.put(node.getCoordinate(),node);
-//                    }
-//                }
-//                else if (m.getPlayerId() == 2) {
-//                    if ((c % 2) == 0) {
-//                        Node East = copygraph.get(east);
-//                        Node West = copygraph.get(west);
-//                        East.assign(2);
-//                        West.assign(2);
-//                        East.removeNeighbor(West);
-//                        West.removeNeighbor(East);
-//                        East.addNeighbor(West);
-//                        West.addNeighbor(East);
-//                        East.addNeighbor(node);
-//                        West.addNeighbor(node);
-//                        node.assign(2);
-//                        node.addNeighbor(East);
-//                        node.addNeighbor(West);
-//                        copygraph.put(east, East);
-//                        copygraph.put(west, West);
-//                        copygraph.put(node.getCoordinate(),node);
-//                    } else if ((c % 2) == 1) {
-//                        Node North = copygraph.get(north);
-//                        Node South = copygraph.get(south);
-//                        North.assign(2);
-//                        South.assign(2);
-//                        North.removeNeighbor(South);
-//                        South.removeNeighbor(North);
-//                        North.addNeighbor(South);
-//                        South.addNeighbor(North);
-//                        North.addNeighbor(node);
-//                        South.addNeighbor(node);
-//                        node.addNeighbor(North);
-//                        node.addNeighbor(South);
-//                        node.assign(2);
-//                        copygraph.put(north, North);
-//                        copygraph.put(south, South);
-//                        copygraph.put(node.getCoordinate(),node);
-//                    }
-//                }
-//            }
-//        }
     }
 
     /**
